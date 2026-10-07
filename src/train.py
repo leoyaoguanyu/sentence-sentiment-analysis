@@ -11,6 +11,7 @@ from pathlib import Path
 
 import joblib
 import nltk
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
@@ -78,9 +79,9 @@ def main() -> None:
     for name, model in models.items():
         model.fit(x_train, y_train)
         results[name] = evaluate(model, x_test, y_test)
-        m = results[name]
-        print(f"{name:20s} acc={m['accuracy']:.4f} "
-              f"prec={m['precision']:.4f} rec={m['recall']:.4f} f1={m['f1']:.4f}")
+
+    results_df = pd.DataFrame(results).T.sort_values("f1", ascending=False)
+    print(results_df.round(4).to_string())
 
     best_name = max(results, key=lambda k: results[k]["f1"])
     args.out.mkdir(parents=True, exist_ok=True)
